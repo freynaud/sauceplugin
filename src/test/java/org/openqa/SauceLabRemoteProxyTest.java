@@ -28,36 +28,39 @@ public class SauceLabRemoteProxyTest {
     hub = getHub();
 
     SelfRegisteringRemote remote = getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
-    remote.addBrowser(DesiredCapabilities.firefox(), 5);
+    remote.addBrowser(DesiredCapabilities.firefox(), 2);
     remote.startRemoteServer();
     remote.getConfiguration().put(RegistrationRequest.TIME_OUT, -1);
     remote.getConfiguration()
         .put(RegistrationRequest.PROXY_CLASS, "org.openqa.SauceLabRemoteProxy");
     remote.sendRegistrationRequest();
+    
     registerSauceLabProxy();
 
   }
 
   private void registerSauceLabProxy() throws Exception {
     SelfRegisteringRemote remote = getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
-    remote.addBrowser(DesiredCapabilities.firefox(), 1);
+    remote.addBrowser(DesiredCapabilities.firefox(), 2);
     remote.startRemoteServer();
 
     remote.getConfiguration().put(RegistrationRequest.TIME_OUT, -1);
     remote.getConfiguration()
         .put(RegistrationRequest.PROXY_CLASS, "org.openqa.SauceLabRemoteProxy");
     remote.getConfiguration().put(SauceLabRemoteProxy.SAUCE_ONE, true);
+    System.out.println(remote.getConfiguration());
     remote.sendRegistrationRequest();
 
   }
 
-  @Test
-  public void firefoxOnWebDriver() throws MalformedURLException {
+  @Test(invocationCount=3,threadPoolSize=3)
+  public void firefoxOnWebDriver() throws Exception {
     WebDriver driver = null;
     try {
       DesiredCapabilities ff = DesiredCapabilities.firefox();
       driver = new RemoteWebDriver(new URL(hub.getUrl() + "/wd/hub"), ff);
       driver.get(hub.getUrl() + "/grid/console");
+      Thread.sleep(5000);
       Assert.assertEquals(driver.getTitle(), "Grid overview");
     } finally {
       if (driver != null) {

@@ -1,8 +1,12 @@
 package org.openqa;
 
+import java.util.Map;
+
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.internal.Registry;
 import org.openqa.grid.internal.RemoteProxy;
+import org.openqa.grid.internal.TestSession;
+import org.openqa.grid.internal.utils.HtmlRenderer;
 import org.openqa.grid.selenium.proxy.DefaultRemoteProxy;
 
 public class SauceLabRemoteProxy extends DefaultRemoteProxy {
@@ -10,6 +14,10 @@ public class SauceLabRemoteProxy extends DefaultRemoteProxy {
   public static final String SAUCE_ONE = "sauce";
   private boolean isSLOne = false;
 
+  public boolean isTheSauceLabProxy(){
+    return isSLOne;
+  }
+  
   public SauceLabRemoteProxy(RegistrationRequest req, Registry registry) {
     super(req, registry);
     Object b = req.getConfiguration().get(SAUCE_ONE);
@@ -17,16 +25,36 @@ public class SauceLabRemoteProxy extends DefaultRemoteProxy {
       isSLOne = (Boolean) b;
     }
   }
+  
+  @Override
+  public TestSession getNewSession(Map<String, Object> requestedCapability) {
+    if (isSLOne){
+      return null;
+    }
+    return super.getNewSession(requestedCapability);
+  }
+
+  @Override
+  public HtmlRenderer getHtmlRender() {
+    return new SauceLabRenderer(this);
+  }
 
   @Override
   public int compareTo(RemoteProxy o) {
     if (!(o instanceof SauceLabRemoteProxy)) {
       throw new RuntimeException("cannot mix saucelab and not saucelab ones");
     } else {
+      SauceLabRemoteProxy other = (SauceLabRemoteProxy) o;
+
       if (this.isSLOne) {
+        System.out.println("return -1, sslone");
+        return 1;
+      } else if (other.isSLOne) {
         return -1;
       } else {
-        return super.compareTo(o);
+        int i = super.compareTo(o);
+        System.out.println("return normal " + i);
+        return i;
       }
     }
   }
