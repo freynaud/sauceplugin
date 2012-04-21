@@ -46,7 +46,7 @@ public class SauceLabServiceImpl implements SauceLabService {
       JSONArray results = new JSONArray(s);
       for (int i = 0; i < results.length(); i++) {
         JSONObject cap = results.getJSONObject(i);
-        res.add(new SauceLabCapabilities(cap));
+        res.add(new SauceLabCapabilities(cap.toString()));
       }
       return res;
     } catch (Exception e) {

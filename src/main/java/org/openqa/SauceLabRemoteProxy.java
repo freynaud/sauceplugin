@@ -2,10 +2,12 @@ package org.openqa;
 
 import java.util.Map;
 
+import org.json.JSONException;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.internal.Registry;
 import org.openqa.grid.internal.RemoteProxy;
 import org.openqa.grid.internal.TestSession;
+import org.openqa.grid.internal.TestSlot;
 import org.openqa.grid.internal.utils.HtmlRenderer;
 import org.openqa.grid.selenium.proxy.DefaultRemoteProxy;
 
@@ -62,7 +64,15 @@ public class SauceLabRemoteProxy extends DefaultRemoteProxy {
     }
   }
 
-  
+  public boolean contains(SauceLabCapabilities capabilities) throws JSONException {
+    for (TestSlot slot : getTestSlots()) {
+      SauceLabCapabilities slc = new SauceLabCapabilities(slot.getCapabilities());
+      if (slc.equals(capabilities)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   public synchronized boolean isMarkUp() {
     return markUp;

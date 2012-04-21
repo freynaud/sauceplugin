@@ -1,9 +1,8 @@
 package org.openqa;
 
 import org.json.JSONException;
-import org.json.JSONObject;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class ModelTests {
@@ -14,19 +13,20 @@ public class ModelTests {
       + "\"long_version\" : \"9.0.8112.16421.\"," + " \"preferred_version\" : \"9\","
       + " \"os\" : \"Windows 2008\"}";
 
+  
+  // same content, different order.
+  private String stringCapabilities2 =
+      "{"
+          + "  \"short_version\" : \"9\","
+          + "\"long_name\" : \"Internet Explorer\","
+          + "\"long_version\" : \"9.0.8112.16421.\", \"selenium_name\" : \"iexplore\", \"preferred_version\" : \"9\","
+          + " \"os\" : \"Windows 2008\"}";
+
   private String stringCapabilitiesInvalid = "{\"selenium_name2\" : \"iexplore\","
       + "  \"short_version\" : \"9\"," + "\"long_name\" : \"Internet Explorer\","
       + "\"long_version\" : \"9.0.8112.16421.\"," + " \"preferred_version\" : \"9\","
       + " \"os\" : \"Windows 2008\"}";
 
-
-  private JSONObject jsonCapabilities;
-
-
-  @BeforeClass
-  public void setup() throws JSONException {
-    jsonCapabilities = new JSONObject(stringCapabilities);
-  }
 
 
   @Test
@@ -37,11 +37,23 @@ public class ModelTests {
   }
 
   @Test
-  public void sauceLabCapabilityJson() throws JSONException {
-    SauceLabCapabilities slc = new SauceLabCapabilities(jsonCapabilities);
-    Assert.assertEquals(slc.getLongName(), "Internet Explorer");
-    Assert.assertEquals(slc.getLongVersion(), "9.0.8112.16421.");
+  public void sauceLabCapabilityConvert() throws JSONException {
+    SauceLabCapabilities slc = new SauceLabCapabilities(stringCapabilities);
+    DesiredCapabilities d = new DesiredCapabilities(slc.asMap());
+
+    SauceLabCapabilities slc2 = new SauceLabCapabilities(d.asMap());
+    Assert.assertEquals(slc.getMD5(), slc2.getMD5());
   }
+  
+  @Test
+  public void orderDoesntImpactMD5() throws JSONException {
+    SauceLabCapabilities slc = new SauceLabCapabilities(stringCapabilities);
+    SauceLabCapabilities slc2 = new SauceLabCapabilities(stringCapabilities2);
+  
+    Assert.assertEquals(slc.getMD5(), slc2.getMD5());
+  }
+
+
 
   @Test(expectedExceptions = {JSONException.class})
   public void sauceLabCapabilityInvalid() throws JSONException {

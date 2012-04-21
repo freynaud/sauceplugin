@@ -30,7 +30,7 @@ public class SauceLabAdminServletTests {
   private void registerSauceLabProxy() throws Exception {
     SelfRegisteringRemote remote =
         TestHelper.getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
-    remote.addBrowser(DesiredCapabilities.firefox(), 5);
+    
 
     remote.getConfiguration().put(RegistrationRequest.TIME_OUT, -1);
     remote.getConfiguration().put(RegistrationRequest.ID, "sauceProxy");

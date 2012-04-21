@@ -8,8 +8,5 @@ public interface SauceLabService {
 
   public boolean isSauceLabUp() throws SauceLabRestAPIException;
   public List<SauceLabCapabilities> getBrowsers() throws SauceLabRestAPIException;
-  
-  
-  
-  
+    
 }
