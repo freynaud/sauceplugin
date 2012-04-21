@@ -11,13 +11,15 @@ import org.openqa.grid.selenium.proxy.DefaultRemoteProxy;
 
 public class SauceLabRemoteProxy extends DefaultRemoteProxy {
 
+  public static String SAUCE_END_POINT = "http://sauce/wd/hub";
+  private volatile boolean markUp = false;
   public static final String SAUCE_ONE = "sauce";
   private boolean isSLOne = false;
 
-  public boolean isTheSauceLabProxy(){
+  public boolean isTheSauceLabProxy() {
     return isSLOne;
   }
-  
+
   public SauceLabRemoteProxy(RegistrationRequest req, Registry registry) {
     super(req, registry);
     Object b = req.getConfiguration().get(SAUCE_ONE);
@@ -25,13 +27,14 @@ public class SauceLabRemoteProxy extends DefaultRemoteProxy {
       isSLOne = (Boolean) b;
     }
   }
-  
+
   @Override
   public TestSession getNewSession(Map<String, Object> requestedCapability) {
-    if (isSLOne){
+    if ((isSLOne && markUp) || !isSLOne) {
+      return super.getNewSession(requestedCapability);
+    } else {
       return null;
     }
-    return super.getNewSession(requestedCapability);
   }
 
   @Override
@@ -58,4 +61,16 @@ public class SauceLabRemoteProxy extends DefaultRemoteProxy {
       }
     }
   }
+
+  
+
+  public synchronized boolean isMarkUp() {
+    return markUp;
+  }
+
+  public synchronized void setMarkUp(boolean markUp) {
+    this.markUp = markUp;
+  }
+
+
 }

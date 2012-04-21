@@ -1,7 +1,7 @@
 package org.openqa;
 
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.openqa.grid.common.GridRole;
 import org.openqa.grid.common.RegistrationRequest;
@@ -12,11 +12,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.net.PortProber;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.utils.TestHelper;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+@Test(groups={"slow"})
 public class SauceLabRemoteProxyTest {
   private Hub hub;
 
@@ -25,9 +27,9 @@ public class SauceLabRemoteProxyTest {
   @BeforeClass(alwaysRun = false)
   public void prepare() throws Exception {
 
-    hub = getHub();
+    hub = TestHelper.getHub();
 
-    SelfRegisteringRemote remote = getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
+    SelfRegisteringRemote remote = TestHelper.getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
     remote.addBrowser(DesiredCapabilities.firefox(), 2);
     remote.startRemoteServer();
     remote.getConfiguration().put(RegistrationRequest.TIME_OUT, -1);
@@ -40,9 +42,9 @@ public class SauceLabRemoteProxyTest {
   }
 
   private void registerSauceLabProxy() throws Exception {
-    SelfRegisteringRemote remote = getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
+    SelfRegisteringRemote remote = TestHelper.getRemoteWithoutCapabilities(hub.getUrl(), GridRole.NODE);
     remote.addBrowser(DesiredCapabilities.firefox(), 2);
-    remote.startRemoteServer();
+    
 
     remote.getConfiguration().put(RegistrationRequest.TIME_OUT, -1);
     remote.getConfiguration()
@@ -76,30 +78,5 @@ public class SauceLabRemoteProxyTest {
     hub.stop();
   }
 
-  private Hub getHub() throws Exception {
-    GridHubConfiguration config = new GridHubConfiguration();
-    config.setPort(PortProber.findFreePort());
-    Hub hub = new Hub(config);
-    hub.start();
-    return hub;
-  }
-
-  public static SelfRegisteringRemote getRemoteWithoutCapabilities(URL hub, GridRole role) {
-    RegistrationRequest req = RegistrationRequest.build("-role", "node");
-
-    req.getConfiguration().put(RegistrationRequest.PORT, PortProber.findFreePort());
-
-    // some values have to be computed again after changing internals.
-    String url =
-        "http://" + req.getConfiguration().get(RegistrationRequest.HOST) + ":"
-            + req.getConfiguration().get(RegistrationRequest.PORT);
-    req.getConfiguration().put(RegistrationRequest.REMOTE_HOST, url);
-
-    req.getConfiguration().put(RegistrationRequest.HUB_HOST, hub.getHost());
-    req.getConfiguration().put(RegistrationRequest.HUB_PORT, hub.getPort());
-
-    SelfRegisteringRemote remote = new SelfRegisteringRemote(req);
-    remote.deleteAllBrowsers();
-    return remote;
-  }
+ 
 }
