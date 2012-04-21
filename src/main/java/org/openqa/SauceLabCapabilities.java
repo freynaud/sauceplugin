@@ -20,14 +20,12 @@ public class SauceLabCapabilities {
   public static final String PREFERRED_VERSION = "preferred_version";
   public static final String OS = "os";
 
-  private final String raw;
   private final Map<String, Object> map = new HashMap<String, Object>();
   private final JSONObject rawJSON;
   private final String md5;
 
   public SauceLabCapabilities(String raw) throws JSONException {
     this.rawJSON = new JSONObject(raw);
-    this.raw = rawJSON.toString();
     init();
     md5 = init();
   }
@@ -35,9 +33,7 @@ public class SauceLabCapabilities {
   public SauceLabCapabilities(Map<String, ?> from) throws JSONException {
     DesiredCapabilities c = new DesiredCapabilities(from);
     this.rawJSON = new JSONObject(c.asMap());
-    this.raw = rawJSON.toString();
     md5 = init();
-
   }
 
   @Override
