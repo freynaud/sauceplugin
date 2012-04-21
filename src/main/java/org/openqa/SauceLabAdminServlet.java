@@ -84,10 +84,13 @@ public class SauceLabAdminServlet extends RegistryBasedServlet {
     // re-create the test slots with the new capabilities.
     sauceRequest.getCapabilities().clear();
 
+    String max = req.getParameter(RegistrationRequest.MAX_SESSION);
+    int m = Integer.parseInt(max);
+
+    sauceRequest.getConfiguration().put(RegistrationRequest.MAX_SESSION, m);
     for (SauceLabCapabilities cap : caps) {
       DesiredCapabilities c = new DesiredCapabilities(cap.asMap());
-      c.setCapability(RegistrationRequest.MAX_INSTANCES,
-          proxy.getMaxNumberOfConcurrentTestSessions());
+      c.setCapability(RegistrationRequest.MAX_INSTANCES, m);
       sauceRequest.getCapabilities().add(c);
     }
 
@@ -122,12 +125,16 @@ public class SauceLabAdminServlet extends RegistryBasedServlet {
       b.append("<form action='/grid/admin/SauceLabAdminServlet/" + UPDATE_BROWSERS
           + "' method='POST'>");
 
+      b.append("max sessions in parallel on sauce : <input type='text' name='"
+          + RegistrationRequest.MAX_SESSION + "' value='"
+          + p.getMaxNumberOfConcurrentTestSessions() + "' />");
+
       b.append("<ul>");
       for (SauceLabCapabilities cap : browsers.getAllBrowsers()) {
 
         b.append("<li>");
         b.append("<input type='checkbox' name='supportedCapabilities'");
-        if (p.contains(cap)){
+        if (p.contains(cap)) {
           b.append(" checked='checked' ");
         }
         b.append("value='" + cap.getMD5() + "'>");
